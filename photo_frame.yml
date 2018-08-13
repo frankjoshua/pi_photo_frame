@@ -1,0 +1,57 @@
+---
+- hosts: all
+
+  vars:
+    photo_location: /media/pi/photos
+    home: /home/pi
+
+  tasks:
+  
+  - name: Create folder for photos
+    file:
+      name: "{{ photo_location }}"
+      state: directory
+      mode: a+r
+      owner: pi
+    become: yes
+
+  - name: Install feh to display images
+    apt:
+      name: feh
+    become: yes
+
+  - name: Add script to launch feh
+    copy:
+      src: files/display_photos.sh
+      dest: "{{ home }}/display_photos.sh"
+      mode: a+x
+
+  - name: Add desktop file to start
+    copy:
+      src: files/photo_frame.desktop
+      dest: "{{ home }}/Desktop/photo_frame.desktop"
+    become: yes
+
+  - name: Turn off screen blanking
+    blockinfile:
+      dest: "{{ home }}/.config/lxsession/LXDE-pi/autostart"
+      block: | 
+        @xset s noblank
+        @xset s off
+        @xset -dpms 
+
+  - name: Disable X Sleeping
+    ini_file:
+      path: /etc/lightdm/lightdm.conf
+      section: SeatDefaults
+      option: xserver-command
+      value: X -s 0 dpms
+      backup: yes
+    become: yes
+
+  # - name: Turn off screen saver
+  #   lineinfile:
+  #     dest: /home/pi/.config/lxsession/LXDE-pi/autostart
+  #     regexp: '^@/home/pi/display_photos.sh'
+  #     line: '@/home/pi/display_photos.sh /media/pi/photos'
+  #   become: yes

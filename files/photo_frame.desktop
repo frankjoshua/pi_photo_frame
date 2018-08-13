@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Slideshow
+Comment=Slideshow
+Exec=/home/pi/display_photos.sh /media/pi/photos
+Terminal=true
